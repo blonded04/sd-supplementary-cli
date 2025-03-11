@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-.code
+.vscode
 .history
 
 # C extensions
