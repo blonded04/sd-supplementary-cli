@@ -4,7 +4,12 @@
 
 Simple command line commands interpreter in Python3.
 
-Supported operations:
+## Usage
+```bash
+cd src && python3 interpreter.py
+```
+
+## Supported operations:
 
 1. Basic operations
     * `cat [FILE]` — print the content of the file.
