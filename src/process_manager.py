@@ -1,3 +1,4 @@
+import sys
 import os
 import subprocess
 from command import Command, CommandType
@@ -15,7 +16,9 @@ class ProcessManager:
             return 0
 
         if command.type == CommandType.BUILTIN:
-            return self._execute_builtin(command)
+            code = self._execute_builtin(command)
+            if code is None: return 0
+            return code
 
         return self._execute_external(command)
 
@@ -45,14 +48,24 @@ class ProcessManager:
             proc = subprocess.run(
                 [command.name] + command.args,
                 env=self.env.get_environment(),
-                check=True
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
             )
+            
+            if proc.stdout:
+                print(proc.stdout, end='')
+            if proc.stderr:
+                print(proc.stderr, end='', file=sys.stderr)
+            
             return proc.returncode
+            
         except FileNotFoundError:
-            print(f"Command not found: {command.name}")
+            print(f"{command.name}: command not found", file=sys.stderr)
             return 127
-        except subprocess.CalledProcessError as e:
-            return e.returncode
+        except PermissionError:
+            print(f"{command.name}: permission denied", file=sys.stderr)
+            return 126
 
     def _echo(self, args: List[str]):
         print(' '.join(args))
