@@ -7,8 +7,8 @@ import os
 class Interpreter:
     def __init__(self):
         self.env = EnvironmentManager()
-        self.parser = CommandParser(self.env)
         self.process_manager = ProcessManager(self.env)
+        self.parser = CommandParser(self.env, self.process_manager)
         self.should_exit = False
 
     def run(self):
@@ -24,7 +24,7 @@ class Interpreter:
                 print("\nExiting...")
                 break
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"Error: {e}", file=sys.stderr)
 
     def _print_prompt(self):
         pwd = self.env.get("PWD", os.getcwd())

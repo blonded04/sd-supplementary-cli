@@ -15,8 +15,8 @@ import subprocess
 class TestExternalCommands(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentManager()
-        self.parser = CommandParser(self.env)
         self.process_manager = ProcessManager(self.env)
+        self.parser = CommandParser(self.env, self.process_manager)
         self.env.set_var("TEST_VAR", "test_value")
 
     def execute_command(self, command_line):

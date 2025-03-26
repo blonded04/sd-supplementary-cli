@@ -12,8 +12,8 @@ from environment_manager import EnvironmentManager
 class TestEcho(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentManager()
-        self.parser = CommandParser(self.env)
         self.process_manager = ProcessManager(self.env)
+        self.parser = CommandParser(self.env, self.process_manager)
 
     def execute_command(self, command_line):
         command = self.parser.parse(command_line)

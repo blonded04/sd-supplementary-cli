@@ -10,8 +10,8 @@ from environment_manager import EnvironmentManager
 class TestExit(unittest.TestCase):
     def setUp(self):
         self.env = EnvironmentManager()
-        self.parser = CommandParser(self.env)
         self.process_manager = ProcessManager(self.env)
+        self.parser = CommandParser(self.env, self.process_manager)
 
     def test_exit_command(self):
         command = self.parser.parse('exit')
