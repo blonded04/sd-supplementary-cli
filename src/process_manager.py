@@ -30,13 +30,14 @@ class ProcessManager:
         else:
             return self._execute_external_capture(command, stdin_data)
 
-    def _execute_pipeline(self, command: Command) -> int:
+    def _execute_pipeline(self, command: Optional[Command]) -> int:
         current_cmd = command
         input_data = None
         exit_code = 0
 
         while current_cmd:
-            stdout, stderr, code = self.execute_capture(current_cmd, input_data)
+            stdout, stderr, code = self.execute_capture(
+                current_cmd, input_data)
             if code != 0:
                 exit_code = code
             input_data = stdout
@@ -47,7 +48,6 @@ class ProcessManager:
         if input_data:
             print(input_data, end='')
         return exit_code
-
 
     def _execute_external_capture(self, command: Command, stdin_data: Optional[str]) -> Tuple[str, str, int]:
         try:
@@ -91,12 +91,19 @@ class ProcessManager:
                         print("wc: missing file argument", file=sys.stderr)
                         code = 1
                     else:
-                        content = stdin_data if not command.args else open(command.args[0], 'rb').read()
-                        lines = content.count(b'\n') if isinstance(content, bytes) else content.count('\n')
-                        words = len(content.split())
-                        bytes_cnt = len(content)
+                        content = stdin_data if not command.args else open(
+                            command.args[0], 'rb').read()
+                        lines = 0
+                        words = 0
+                        bytes_cnt = 0
+                        if content is not None:
+                            lines = content.count(b'\n') if isinstance(
+                                content, bytes) else content.count('\n')
+                            words = len(content.split())
+                            bytes_cnt = len(content)
                         if command.args:
-                            print(f"{lines} {words} {bytes_cnt} {command.args[0]}")
+                            print(
+                                f"{lines} {words} {bytes_cnt} {command.args[0]}")
                         else:
                             print(f"{lines} {words} {bytes_cnt}")
                 elif command.name == 'pwd':

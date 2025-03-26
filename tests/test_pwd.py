@@ -28,5 +28,6 @@ class TestPwd(unittest.TestCase):
         self.assertEqual(output, expected)
         self.assertEqual(code, 0)
 
+
 if __name__ == '__main__':
     unittest.main()

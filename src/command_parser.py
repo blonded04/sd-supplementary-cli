@@ -26,7 +26,8 @@ class CommandParser:
             if not tokens:
                 return None
             cmd_name = self._expand(tokens[0], handle_command_sub=True)
-            args = [self._expand(t, handle_command_sub=True) for t in tokens[1:]]
+            args = [self._expand(t, handle_command_sub=True)
+                    for t in tokens[1:]]
             commands.append(self._create_command(cmd_name, args))
 
         for i in range(len(commands)-1):
@@ -87,11 +88,11 @@ class CommandParser:
                 escape = True
             elif c in ('"', "'"):
                 if quote == c:
-                    quote = None  # Закрываем кавычки, не сохраняем их
+                    quote = None
                 elif not quote:
-                    quote = c  # Начинаем цитату, не сохраняем символ
+                    quote = c
                 else:
-                    buffer.append(c)  # Внутри других кавычек сохраняем
+                    buffer.append(c)
             elif not quote and c.isspace():
                 if buffer:
                     tokens.append(''.join(buffer))
@@ -101,7 +102,6 @@ class CommandParser:
         if buffer:
             tokens.append(''.join(buffer))
         return tokens
-
 
     def _expand(self, s: str, handle_command_sub: bool = False) -> str:
         result = []

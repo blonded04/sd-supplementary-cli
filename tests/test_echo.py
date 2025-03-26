@@ -42,5 +42,6 @@ class TestEcho(unittest.TestCase):
         self.assertEqual(output, 'value')
         self.assertEqual(code, 0)
 
+
 if __name__ == '__main__':
     unittest.main()

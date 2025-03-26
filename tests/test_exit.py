@@ -18,5 +18,6 @@ class TestExit(unittest.TestCase):
         code = self.process_manager.execute(command)
         self.assertEqual(code, ProcessManager.FINISH)
 
+
 if __name__ == '__main__':
     unittest.main()

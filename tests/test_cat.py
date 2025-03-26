@@ -44,5 +44,6 @@ class TestCat(unittest.TestCase):
         self.assertEqual(stdout, "")
         self.assertNotEqual(code, 0)
 
+
 if __name__ == '__main__':
     unittest.main()

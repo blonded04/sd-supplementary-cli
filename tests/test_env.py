@@ -45,5 +45,6 @@ class TestEnvironment(unittest.TestCase):
         stdout, _, _ = self.execute_command('echo $UNDEFINED_VAR')
         self.assertEqual(stdout, "")
 
+
 if __name__ == '__main__':
     unittest.main()

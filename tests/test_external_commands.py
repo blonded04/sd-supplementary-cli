@@ -55,5 +55,6 @@ class TestExternalCommands(unittest.TestCase):
             output, err, code = self.execute_command(f'echo "File: {f.name}"')
             self.assertEqual(output, f"File: {f.name}")
 
+
 if __name__ == '__main__':
     unittest.main()

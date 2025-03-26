@@ -49,5 +49,6 @@ class TestPipeline(unittest.TestCase):
             stdout, _, _ = self.execute_command(f'cat {f.name} | grep line2')
             self.assertEqual(stdout, "line2")
 
+
 if __name__ == '__main__':
     unittest.main()

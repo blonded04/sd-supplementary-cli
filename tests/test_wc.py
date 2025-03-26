@@ -34,5 +34,6 @@ class TestWc(unittest.TestCase):
             self.assertEqual(code, 0)
         os.unlink(f.name)
 
+
 if __name__ == '__main__':
     unittest.main()
