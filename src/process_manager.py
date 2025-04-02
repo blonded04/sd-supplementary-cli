@@ -164,28 +164,28 @@ class ProcessManager:
                     except re.error as e:
                         return ("", f"grep: invalid regex: {e}", 1)
 
-                    content = []
+                    file_content: list = []
                     if filename:
                         try:
                             with open(filename, 'r') as f:
-                                content = f.read().splitlines()
+                                file_content = f.read().splitlines()
                         except Exception as e:
                             return ("", f"grep: {e}", 1)
                     elif stdin_data:
-                        content = stdin_data.split('\n')
+                        file_content = stdin_data.split('\n')
                     else:
                         return ("", "grep: no input source", 1)
 
                     output = []
                     last_printed = -1
-                    for idx, line in enumerate(content):
+                    for idx, line in enumerate(file_content):
                         line = line.rstrip('\n')
                         if regex.search(line):
                             start = max(idx, last_printed + 1)
                             end = idx + after_context + 1
-                            for j in range(start, min(end, len(content))):
+                            for j in range(start, min(end, len(file_content))):
                                 if j > last_printed:
-                                    output_line = content[j].rstrip('\n')
+                                    output_line = file_content[j].rstrip('\n')
                                     prefix = ""
                                     output.append(f"{prefix}{output_line}")
                                     last_printed = j
