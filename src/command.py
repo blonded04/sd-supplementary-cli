@@ -19,7 +19,7 @@ class Command:
 
 
 class CommandFactory:
-    BUILTIN_COMMANDS = {'cat', 'echo', 'wc', 'pwd', 'exit'}
+    BUILTIN_COMMANDS = {'cat', 'echo', 'wc', 'pwd', 'exit', 'grep'}
 
     @classmethod
     def create(cls,

@@ -110,6 +110,84 @@ class ProcessManager:
                     print(os.getcwd())
                 elif command.name == 'exit':
                     code = self._exit([])
+                elif command.name == 'grep':
+                    import re
+                    from io import StringIO
+
+                    case_insensitive = False
+                    word_boundary = False
+                    after_context = 0
+                    pattern = None
+                    filename = None
+                    args = command.args
+                    i = 0
+                    error = None
+
+                    while i < len(args):
+                        arg = args[i]
+                        if arg == '-i':
+                            case_insensitive = True
+                            i += 1
+                        elif arg == '-w':
+                            word_boundary = True
+                            i += 1
+                        elif arg == '-A':
+                            if i + 1 >= len(args):
+                                error = "grep: option requires an argument -- 'A'"
+                                break
+                            try:
+                                after_context = int(args[i+1])
+                                i += 2
+                            except ValueError:
+                                error = f"grep: invalid number of lines after context: '{args[i+1]}'"
+                                break
+                        else:
+                            if pattern is None:
+                                pattern = arg
+                            else:
+                                filename = arg
+                            i += 1
+
+                    if error:
+                        return ("", error, 1)
+                    if not pattern:
+                        return ("", "grep: missing pattern", 1)
+                    try:
+                        regex_pattern = r'\b{}\b'.format(pattern) if word_boundary else pattern
+                        flags = re.IGNORECASE if case_insensitive else 0
+                        regex = re.compile(regex_pattern, flags)
+                    except re.error as e:
+                        return ("", f"grep: invalid regex: {e}", 1)
+
+                    content = []
+                    if filename:
+                        try:
+                            with open(filename, 'r') as f:
+                                content = f.read().splitlines()
+                        except Exception as e:
+                            return ("", f"grep: {e}", 1)
+                    elif stdin_data:
+                        content = stdin_data.split('\n')
+                    else:
+                        return ("", "grep: no input source", 1)
+
+                    output = []
+                    last_printed = -1
+                    for idx, line in enumerate(content):
+                        line = line.rstrip('\n')
+                        if regex.search(line):
+                            start = max(idx, last_printed + 1)
+                            end = idx + after_context + 1
+                            for j in range(start, min(end, len(content))):
+                                if j > last_printed:
+                                    output_line = content[j].rstrip('\n')
+                                    prefix = ""
+                                    output.append(f"{prefix}{output_line}")
+                                    last_printed = j
+
+                    print('\n'.join(output))
+                    return (stdout_buf.getvalue(), stderr_buf.getvalue(), code)
+
             except Exception as e:
                 print(str(e), file=sys.stderr)
                 code = 1
