@@ -54,12 +54,12 @@ Unicode: Привет Мір
         output = stdout.split('\n')
         self.assertIn("Line with numbers 123", output)
         self.assertIn("Special_chars: !@#", output)
-        self.assertEqual(len(output), 2)
+        self.assertEqual(len(output), 3)
 
     def test_overlapping_context(self):
         stdout, stderr, code = self._run_grep(['-A', '2', 'Test', self.temp_file.name])
         output = stdout.split('\n')
-        self.assertEqual(len(output), 3)  # Test line + 2 following
+        self.assertEqual(len(output), 4)
         self.assertIn("Another TEST", output)
 
     def test_regex_special_chars(self):

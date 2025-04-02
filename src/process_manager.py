@@ -137,10 +137,15 @@ class ProcessManager:
                                 break
                             try:
                                 after_context = int(args[i+1])
+                                if after_context < 0:
+                                    error = f"invalid number: {after_context}"
                                 i += 2
                             except ValueError:
                                 error = f"grep: invalid number of lines after context: '{args[i+1]}'"
                                 break
+                        elif arg.startswith('-'):
+                            error = f"Invalid option: {arg}"
+                            break
                         else:
                             if pattern is None:
                                 pattern = arg
