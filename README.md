@@ -5,9 +5,18 @@
 Simple command line commands interpreter in Python3.
 
 ## Usage
+
+### macOS / Linux
 ```bash
 cd src && python3 interpreter.py
 ```
+
+### Windows
+```bash
+cd src && python interpreter.py
+```
+
+Note: Make sure you have Python 3.x installed on your system. On Windows, you might need to add Python to your PATH environment variable.
 
 ## Supported operations:
 
@@ -19,7 +28,7 @@ cd src && python3 interpreter.py
     * `exit` — exit the interpreter.
 2. Full and weak quoting
     ```
-    > echo ’What do you get if you multiply six by nine?\n Six by nine. Forty two.’
+    > echo 'What do you get if you multiply six by nine?\n Six by nine. Forty two.'
     > echo "What do you get if you multiply six by nine?\n Six by nine. Forty two."
     ```
 3. Environment and variables
