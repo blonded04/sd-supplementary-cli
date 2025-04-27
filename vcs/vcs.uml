@@ -1,0 +1,239 @@
+@startuml
+
+class CLI
+
+package "Lib" {
+
+class API
+
+class CommandFabric
+note right of CommandFabric
+Возвращает нужный менеджер по строке команды
+end note
+ 
+package "CommandsManagers" {
+    class CheckoutManager
+    note bottom of CheckoutManager
+        Меняет название ветки в мета файле, 
+        если передан аргумент -b дополнительно создает ветку с таким же порядком комитов
+    end note
+
+    class MergeManager
+    note bottom of MergeManager
+        Находит lca коммитов
+        и сравненивает содержимое с содержимым коммтов,
+        на которых происходит мердж, 
+        затем начиная с листов формируется новое дерево,
+        если объект не менялся добавим его в дерево как есть,
+        в случае если объект имеется в одном коммите или удален,
+        то также переносится в новый коммит,
+        если объект добавлен или изменен в обоих коммитах, то 
+        формируем дифф с изначальным файлом (если его нет то с пустым файлом)
+        и смотрим те строки которые были изменены в обоих коммитах, 
+        такие строки считаем конфликтными и отдаем на разрешение пользователю,
+        после разрешения всех конфликтов сохраняет новый коммит
+    end note
+
+    class LogManager
+    note bottom of LogManager
+        Проходит по всем коммитам начиная с того который записанна в дереве
+        и выводит коммиты которые там находятся
+    end note
+
+    class StatusManager
+    note bottom of StatusManager
+        Сравнивает дерево временного коммита с текущим 
+        коммитом формируя unncommited files,
+        а также дерево временного коммита с текущим 
+        состоянием файловой системы формируя untracked files
+    end note
+
+    class BranchManager
+    note bottom of BranchManager
+        Позволяет создает ветку,
+        по средствам копирования файла бранча с изменением имени,
+        или же удалить уже имеющуюся
+    end note
+ 
+    class CommitManager
+    note bottom of CommitManager
+        Формирует коммит с мета информацией
+        из дерева временного коммита
+    end note
+ 
+    class AddManager
+    note bottom of AddManager
+        Применяет изменения к дереву временного коммита,
+        создавая новый объект из файла в директории 
+        репозитория и обновляя вертикальный путь
+    end note
+
+    class CloneManager
+    note bottom of CloneManager
+        Вызывает нужный метод RemoteClient
+        который запрашивает директорию всех файлов из репозитория,
+        затем обрабатывает ответ сервера, в случае успеха
+        разорхивирует нужную директорию через PackManager
+    end note
+
+    class PushManager
+    note bottom of CloneManager
+        Вызывает нужный метод RemoteClient
+        который отправляет запакованную 
+        директорию через PackManager
+    end note
+
+    class FetchManager
+    note bottom of FetchManager
+        Вызывает нужный метод RemoteClient
+        который запрашивает все объекты которых нет 
+        в локальном директории, в случае успеха 
+        подтягивает все новые объекты с сервера 
+        запакованные через PackageManager
+    end note
+
+    class PullManager
+    note bottom of PullManager
+        Вызывает нужный метод RemoteClient
+        который запрашивает все объекты которых нет 
+        в локальном директории, в случае успеха подтягивает 
+        все новые объекты с сервера запакованные через PackageManager, 
+        а затем вызывает merge для обновления локального стейта
+    end note
+}
+
+package "Storages" {
+    class VCStorage
+    class MetaStorage
+    class BranchStorage
+    class CommitStorage
+    class ObjectStorage
+    note right of VCStorage
+    Обертка над всеми сущностями из .git,
+    чтобы из command менеджеров по
+    общему api получать сущность
+    end note
+
+    note bottom of MetaStorage
+    Мета репозитория владелец, еtc
+    end note
+
+    note bottom of BranchStorage
+    Каждый branch_file - называется по названию ветки,
+    содержит в себе ссылку на предыдующую ноду,
+    мету с автором ветки, etc 
+    end note
+
+    note bottom of CommitStorage
+    Каждый commit_file - называется как хеш коммита
+    содержит в себе: мету с автором коммита, временем, etc;
+    ссылку на корень дерева objectов и хеши коммитов родителей
+    end note
+
+    note bottom of ObjectStorage
+    Каждый object_file - называется как хеш от его содержимого + названия
+    Представляет из себя или тип tree - директорию,
+    с хешами всех своих потомков или file - сжатое содержимое файла, 
+    или дифф с указанием на предыдущую версию - для оптимизации места
+    И ссылку(название) на родителя - по сути это наше 
+    представление файловой системы
+    end note
+}
+
+    note right of Storages
+    Сущности, необходимые для работы.
+    Внутри .git есть ./meta, ./objects,
+    ./commits, ./branches
+    end note
+
+    class AuthManager
+    class PackManager
+
+    note bottom of AuthManager
+    Достаёт из отдельного конфигурационного файла
+    информацию о пользователе (ssh f.e.) - если есть,
+    Если нет организует процесс авторизации
+    end note
+
+    note bottom of PackManager
+    Отвечает за запаковку/распаковку данных 
+    передаваемых с/на сервер
+    end note
+
+    class RemoteClient
+
+}
+
+package "Server" {
+    class ServerAuthManager
+    class ServerAPI
+    class ServerPackManager
+    class ServerCommandFabric
+    class ServerVCStorage
+
+    note right of ServerAPI
+    содержит сетевые endpoints
+    по которым вызывает адаптированные
+    под сервер менеджеры,
+    возвращает response по
+    фиксированной схеме
+    end note
+
+    note bottom of ServerCommandFabric
+    глобально то же самое, что и в Lib,
+    но в некоторых менеджерах отличается 
+    логика инвертирована (например в CloneManager)
+    но каких-то уникальных и интересных 
+    с точки зрения архитектуры не содержит
+    end note
+
+    note bottom of ServerVCStorage
+    глобально то же самое, что и в Lib,
+    но дополнительный уровень вложенности
+    с репозитириями/пользователями
+    end note
+
+    note bottom of ServerPackManager
+    Отвечает за запаковку/распаковку данных передаваемых с/на клиент
+    end note
+
+    note bottom of ServerAuthManager
+    Проверяет что пользователь имеет нужные права, 
+    если права установлены, иначе возвращает ошибку
+    end note
+}
+
+CLI -> API
+API -> CommandFabric
+
+CommandFabric --> CheckoutManager
+CommandFabric --> LogManager
+CommandFabric --> BranchManager
+CommandFabric --> CommitManager
+CommandFabric --> PushManager
+CommandFabric --> PullManager
+CommandFabric --> MergeManager
+CommandFabric --> StatusManager
+CommandFabric --> AddManager
+CommandFabric --> CloneManager
+CommandFabric --> FetchManager
+
+VCStorage --> MetaStorage
+VCStorage --> BranchStorage
+VCStorage --> CommitStorage
+VCStorage --> ObjectStorage
+
+CommandFabric --> VCStorage
+CommandFabric --> RemoteClient
+
+AuthManager <--> RemoteClient
+RemoteClient <--> PackManager
+
+RemoteClient --> ServerAPI
+
+ServerAPI --> ServerAuthManager
+ServerAPI --> ServerPackManager
+ServerAPI --> ServerCommandFabric
+ServerCommandFabric --> ServerVCStorage
+
+@enduml
