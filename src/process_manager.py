@@ -110,6 +110,23 @@ class ProcessManager:
                     print(os.getcwd())
                 elif command.name == 'exit':
                     code = self._exit([])
+                elif command.name == 'cd':
+                    path = command.args[0] if command.args else self.env.get('HOME', os.getcwd())
+                    try:
+                        new_path = os.path.abspath(os.path.join(os.getcwd(), path))
+                        os.chdir(new_path)
+                        self.env.set_var('PWD', new_path)
+                    except Exception as e:
+                        print(f"cd: {e}", file=sys.stderr)
+                        code = 1
+                elif command.name == 'ls':
+                    path = command.args[0] if command.args else os.getcwd()
+                    try:
+                        items = os.listdir(path)
+                        print('\n'.join(items))
+                    except Exception as e:
+                        print(f"ls: {e}", file=sys.stderr)
+                        code = 1
                 elif command.name == 'grep':
                     import re
                     from io import StringIO
